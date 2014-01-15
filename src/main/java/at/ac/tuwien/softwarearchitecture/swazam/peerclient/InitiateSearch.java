@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.logging.Logger;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import org.apache.log4j.Level;
@@ -50,11 +51,14 @@ public class InitiateSearch {
 
         try {
 
-            URL url = url = new URL("http://localhost:8181/Server/webapi/searchmanagement/search");
+//            URL url = url = new URL("http://128.131.215.176:8080/Server/webapi/searchmanagement/search");
+            URL url = url = new URL("http://localhost:8080/Server/webapi/searchmanagement/search");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/xml");
+            conn.setRequestProperty("Accept", MediaType.TEXT_PLAIN);
+            conn.setDoOutput(true);
 
             String input = stringWriter.getBuffer().toString();
 
@@ -64,14 +68,27 @@ public class InitiateSearch {
 
 
             System.out.println(conn.getResponseMessage());
+            System.out.println(conn.getResponseCode());
+
+//            {
+//                BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+//
+//                String output;
+//                System.out.println("Output from Server .... \n");
+//                while ((output = br.readLine()) != null) {
+//                    System.out.println(output);
+//                }
+//            }
+
+            {
+                BufferedReader br = new BufferedReader(new InputStreamReader((conn.getErrorStream())));
 
 
-            BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-
-            String output;
-            System.out.println("Output from Server .... \n");
-            while ((output = br.readLine()) != null) {
-                System.out.println(output);
+                String output;
+                System.out.println("Output from Server .... \n");
+                while ((output = br.readLine()) != null) {
+                    System.out.println(output);
+                }
             }
 
             conn.disconnect();
@@ -89,6 +106,9 @@ public class InitiateSearch {
     }
 
     public static Fingerprint extractFingerprint(String musicFilePath) throws UnsupportedAudioFileException, IOException {
+
+        System.err.println(new File(musicFilePath).getAbsolutePath());
+        System.err.println(new File("./").getAbsolutePath());
 
         AudioInputStream stream = AudioSystem.getAudioInputStream(new File(musicFilePath));
 
